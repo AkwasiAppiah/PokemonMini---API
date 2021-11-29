@@ -36,24 +36,35 @@ namespace PokemonMiniTest.Controllers
         }
 
         [HttpGet("/translated/{pokemonName}")]
-        public async Task<ModelPokemon> GetSingleTranslatedPokemonAsyncTask(string pokemonName)
+        public async Task<ActionResult<ModelPokemon>> GetSingleTranslatedPokemonAsyncTask(string pokemonName)
         {
             var serviceResult = await _getSinglePokemon.GetSingleModelPokemonService(pokemonName);
 
             var pokemonFromPokemonApi = serviceResult.Data;
 
-            if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
+            if (serviceResult.ErrorMessage == null)
             {
-                var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
-                return translatedPokemon.Data;
-            }
-            else
-            {
-                var pokemonFromShakespeareApi =
-                    await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
+                if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
+                {
+                    var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
+                    return translatedPokemon.Data;
+                }
+                else
+                {
+                    var pokemonFromShakespeareApi =
+                        await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
+                }
+
+                return Ok(pokemonFromPokemonApi);
             }
 
-            return pokemonFromPokemonApi;
+            return NotFound(new ModelPokemon()
+            {
+                Name = null,
+                Description = null,
+                Habitat = null,
+                IsLegendary = false
+            });
         }
     }
 }

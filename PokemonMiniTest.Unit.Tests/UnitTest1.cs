@@ -22,7 +22,7 @@ namespace PokemonMiniTest.Unit.Tests
     {
         public class AutoMapper
         {
-                    [Fact]
+        [Fact]
         public void TestAutoMapperNotNull()
         {
             var config = new MapperConfiguration(cfg =>
