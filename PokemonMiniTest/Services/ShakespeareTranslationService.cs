@@ -42,7 +42,7 @@ namespace PokemonMiniTest.Services
                     {
                         HttpStatusCode = result.StatusCode,
                         ErrorMessage = "Shakespeare API failed",
-                        Data = null
+                        Data = pokemonToTranslate
                     };
                 }
 

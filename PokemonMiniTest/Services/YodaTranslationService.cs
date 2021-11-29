@@ -44,7 +44,7 @@ namespace PokemonMiniTest.Services
                     {
                         HttpStatusCode = result.StatusCode,
                         ErrorMessage = "External Service Error",
-                        Data = null
+                        Data = pokemonToTranslate
                     };
                 }
                 var responseBody = await result.Content.ReadAsStringAsync();

@@ -405,7 +405,7 @@ namespace PokemonMiniTest.Unit.Tests
 
                 var output = await new YodaTranslationService(fakeHttpClientFactory.Object).GetTranslatedYodaPokemonModel(expected);
 
-                output.Data.ShouldBeNull();
+                output.Data.ShouldBe(expected);
                 output.ErrorMessage.ShouldNotBeNullOrEmpty();
                 output.IsSuccessful.ShouldBeFalse();
                 Assert.Equal(HttpStatusCode.BadRequest, output.HttpStatusCode);
@@ -549,7 +549,7 @@ namespace PokemonMiniTest.Unit.Tests
                     Description = "asdfghjklasdfghjkl"
                 });
 
-                output.Data.ShouldBeNull();
+                output.Data.ShouldNotBeNull();
                 output.ErrorMessage.ShouldNotBeNullOrEmpty();
                 output.IsSuccessful.ShouldBeFalse();
                 Assert.Equal(HttpStatusCode.BadRequest, output.HttpStatusCode);

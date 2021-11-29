@@ -16,12 +16,12 @@ namespace PokemonMiniTest.Controllers
     [Route("[controller]")]
     public class PokemonController : Controller
     {
-        private readonly IGetSingleModelPokemon _getSinglePokemon;
+        private readonly IGetSingleModelPokemon _getSinglePokemonService;
         private readonly IYodaTranslationService _yodaTranslationService;
         private readonly IShakespeareTranslationService _shakespeareTranslationService;
         public PokemonController(IGetSingleModelPokemon getSinglePokemon, IYodaTranslationService yodaTranslationService, IShakespeareTranslationService shakespeareTranslationService)
         {
-            _getSinglePokemon = getSinglePokemon;
+            _getSinglePokemonService = getSinglePokemon;
             _yodaTranslationService = yodaTranslationService;
             _shakespeareTranslationService = shakespeareTranslationService;
         }
@@ -31,7 +31,7 @@ namespace PokemonMiniTest.Controllers
         public async Task<ActionResult<ModelPokemon>> GetSinglePokemonAsyncTask(string pokemonName)
         {
             var lowercasePokemonName = pokemonName.ToLower();
-            var serviceResult = await _getSinglePokemon.GetSingleModelPokemonService(lowercasePokemonName);
+            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(lowercasePokemonName);
             var pokemonFromApi = serviceResult.Data;
 
             if(serviceResult.ErrorMessage == null || serviceResult.ErrorMessage == "")
@@ -45,7 +45,7 @@ namespace PokemonMiniTest.Controllers
         [HttpGet("/translated/{pokemonName}")]
         public async Task<ActionResult<ModelPokemon>> GetSingleTranslatedPokemonAsyncTask(string pokemonName)
         {
-            var serviceResult = await _getSinglePokemon.GetSingleModelPokemonService(pokemonName);
+            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(pokemonName);
 
             var pokemonFromPokemonApi = serviceResult.Data;
 
