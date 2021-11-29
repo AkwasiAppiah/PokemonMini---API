@@ -40,7 +40,7 @@ namespace PokemonMiniTest.Unit.Tests
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.NotFound,
-                ErrorMessage = null,
+                ErrorMessage = "External Service Error",
                 Data = modelPokemonServiceReturns
             };
 
