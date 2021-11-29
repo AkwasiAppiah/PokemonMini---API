@@ -48,20 +48,19 @@ namespace PokemonMiniTest.Controllers
 
             var pokemonFromPokemonApi = serviceResult.Data;
 
-            if (serviceResult.ErrorMessage == null)
+            if (serviceResult.ErrorMessage == "")
             {
                 if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
                 {
                     var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
-                    return translatedPokemon.Data;
+                    return Ok(translatedPokemon.Data);
                 }
                 else
                 {
                     var pokemonFromShakespeareApi =
                         await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
+                    return Ok(pokemonFromShakespeareApi.Data);
                 }
-
-                return Ok(pokemonFromPokemonApi);
             }
 
             return NotFound(serviceResult.Data);

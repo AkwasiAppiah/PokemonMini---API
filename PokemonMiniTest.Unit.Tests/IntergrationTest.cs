@@ -78,7 +78,7 @@ namespace PokemonMiniTest.Unit.Tests
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.NotFound,
-                ErrorMessage = null,
+                ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
 
@@ -98,7 +98,7 @@ namespace PokemonMiniTest.Unit.Tests
 
             var result = data.Result.Result as OkObjectResult;
 
-            Assert.Equal(modelPokemonServiceReturns, data.Result.Value);
+            Assert.Equal(modelPokemonServiceReturns, result.Value);
             //result.StatusCode.ShouldBe(200);
             //data.Result.Result.Value.ShouldBeNull();
         }
@@ -118,11 +118,10 @@ namespace PokemonMiniTest.Unit.Tests
                 IsLegendary = true
             };
 
-
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.NotFound,
-                ErrorMessage = null,
+                ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
 
@@ -142,7 +141,7 @@ namespace PokemonMiniTest.Unit.Tests
 
             var result = data.Result.Result as OkObjectResult;
 
-            Assert.Equal(modelPokemonServiceReturns, data.Result.Value);
+            Assert.Equal(modelPokemonServiceReturns, result.Value);
             //result.StatusCode.ShouldBe(200);
             //data.Result.Result.Value.ShouldBeNull();
         }
