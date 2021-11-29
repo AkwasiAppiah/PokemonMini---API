@@ -77,7 +77,7 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.NotFound,
+                HttpStatusCode = HttpStatusCode.OK,
                 ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
@@ -120,7 +120,7 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.NotFound,
+                HttpStatusCode = HttpStatusCode.OK,
                 ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
@@ -164,7 +164,7 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.NotFound,
+                HttpStatusCode = HttpStatusCode.OK,
                 ErrorMessage = null,
                 Data = modelPokemonServiceReturns
             };
