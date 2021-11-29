@@ -28,11 +28,17 @@ namespace PokemonMiniTest.Controllers
         // GET: PokemonController - basic pokemon info 
 
         [HttpGet("{pokemonName}")] 
-        public async Task<ModelPokemon> GetSinglePokemonAsyncTask(string pokemonName)
+        public async Task<ActionResult<ModelPokemon>> GetSinglePokemonAsyncTask(string pokemonName)
         {
             var lowercasePokemonName = pokemonName.ToLower();
-            var p = await _getSinglePokemon.GetSingleModelPokemonService(lowercasePokemonName);
-            return p.Data;
+            var pokemonFromApi = await _getSinglePokemon.GetSingleModelPokemonService(lowercasePokemonName);
+
+            if(pokemonFromApi.ErrorMessage == null)
+            {
+                 return Ok(pokemonFromApi.Data);
+            }
+           
+            return NotFound(pokemonFromApi.Data);
         }
 
         [HttpGet("/translated/{pokemonName}")]
@@ -58,13 +64,7 @@ namespace PokemonMiniTest.Controllers
                 return Ok(pokemonFromPokemonApi);
             }
 
-            return NotFound(new ModelPokemon()
-            {
-                Name = null,
-                Description = null,
-                Habitat = null,
-                IsLegendary = false
-            });
+            return NotFound(serviceResult.Data);
         }
     }
 }
