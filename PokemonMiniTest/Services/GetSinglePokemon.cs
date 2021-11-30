@@ -14,7 +14,7 @@ using PokemonMiniTest.Mappings;
 
 namespace PokemonMiniTest.Services
 {
-    public class GetSingleModelPokemon : IGetSingleModelPokemon
+    public class GetSingleModelPokemon : IPokemonService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         public GetSingleModelPokemon(IHttpClientFactory httpClientFactory)
@@ -23,8 +23,18 @@ namespace PokemonMiniTest.Services
         }
 
        
-        public async Task<ServiceResult<ModelPokemon>> GetSingleModelPokemonService(string pokemonName)
+        public async Task<ServiceResult<ModelPokemon>> GetSinglePokemon(string pokemonName)
         {
+            if (string.IsNullOrWhiteSpace(pokemonName))
+            {
+                return new ServiceResult<ModelPokemon>
+                {
+                    ErrorMessage = "Pokemon name is required"
+                };
+            }
+
+            pokemonName = pokemonName.Trim().ToLower();
+
             var config = new MapperConfiguration(cfg =>
                 cfg.AddProfile<ModelPokemonMapping>()
             );
@@ -32,45 +42,43 @@ namespace PokemonMiniTest.Services
             try
             {
                 //too much in once method SOLID ... (Single responsibility)
-
+                // Read up on .net core configuration appsettings.json
                 var endpoint = $"https://pokeapi.co/api/v2/pokemon-species/{pokemonName}";
                 //DI
                 //look into 'using' statements
-                var httpClient = _httpClientFactory.CreateClient();
-
-                var result = await httpClient.GetAsync(endpoint);
-
-                if (!result.IsSuccessStatusCode)
+                using (var httpClient = _httpClientFactory.CreateClient())
                 {
+                    var result = await httpClient.GetAsync(endpoint);
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        return new ServiceResult<ModelPokemon>()
+                        {
+                            HttpStatusCode = result.StatusCode,
+                            ErrorMessage = "External Service error"
+                        };
+                    }
+
+                    var responseBody = await result.Content.ReadAsStringAsync();
+
+                    var response = JsonSerializer.Deserialize<PokemonResponse>(responseBody);
+
+                    var mapper = new Mapper(config);
+                    var modelPokemon = mapper.Map<ModelPokemon>(response);
+
                     return new ServiceResult<ModelPokemon>()
                     {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "External Service error",
-                        Data = null,
+                        Data = modelPokemon,
+                        HttpStatusCode = result.StatusCode
                     };
                 }
-
-                var responseBody = await result.Content.ReadAsStringAsync();
-
-                var response = JsonSerializer.Deserialize<PokemonResponse>(responseBody);
-
-                var mapper = new Mapper(config);
-                var modelPokemon = mapper.Map<ModelPokemon>(response);
-
-                return new ServiceResult<ModelPokemon>()
-                {
-                    Data = modelPokemon,
-                    ErrorMessage = string.Empty,
-                    HttpStatusCode = result.StatusCode
-                };
             }
             catch (Exception e)
             {
                 return new ServiceResult<ModelPokemon>()
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
-                    ErrorMessage = e.Message,
-                    Data = null,
+                    ErrorMessage = e.Message
                 };
             }
 

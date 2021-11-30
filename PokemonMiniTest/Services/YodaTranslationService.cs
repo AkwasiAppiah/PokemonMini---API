@@ -22,32 +22,37 @@ namespace PokemonMiniTest.Services
 
             try
             {
+                // Add to config
                 const string endpoint = "https://api.funtranslations.com/translate/yoda";
 
                 var description = pokemonToTranslate.Description;
 
-                var jsonContent = new Dictionary<string, string>()
-            {
-                {"text", $"{description}"}
-            };
+                var jsonContent = new Dictionary<string, string>
+                {
+                    {"text", $"{description}"}
+                };
 
                 var content = new FormUrlEncodedContent(jsonContent);
 
+                string responseBody = "";
+                HttpStatusCode statusCode = HttpStatusCode.OK;
 
-                var httpClient = _httpClientFactory.CreateClient();
-
-                var result = await httpClient.PostAsync(endpoint, content);
-
-                if (!result.IsSuccessStatusCode)
+                using(var httpClient = _httpClientFactory.CreateClient())
                 {
-                    return new ServiceResult<ModelPokemon>()
+                    var result = await httpClient.PostAsync(endpoint, content);
+
+                    if (!result.IsSuccessStatusCode)
                     {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "External Service Error",
-                        Data = pokemonToTranslate
-                    };
+                        return new ServiceResult<ModelPokemon>()
+                        {
+                            HttpStatusCode = result.StatusCode,
+                            ErrorMessage = "External Service Error",
+                            Data = null
+                        };
+                    }
+                    responseBody = await result.Content.ReadAsStringAsync();
+                    statusCode = result.StatusCode;
                 }
-                var responseBody = await result.Content.ReadAsStringAsync();
 
                 var yodaObject = JsonSerializer.Deserialize<YodaApiResponseJson>(responseBody);
 
@@ -58,10 +63,10 @@ namespace PokemonMiniTest.Services
 
                 return new ServiceResult<ModelPokemon>()
                 {
-                    HttpStatusCode = result.StatusCode,
-                    ErrorMessage = String.Empty,
+                    HttpStatusCode = statusCode,
                     Data = pokemonToTranslate
                 };
+               
             }
             catch (Exception exception)
             {
@@ -69,7 +74,6 @@ namespace PokemonMiniTest.Services
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = exception.Message,
-                    Data = null
                 };
             }
 

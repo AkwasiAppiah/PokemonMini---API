@@ -292,7 +292,7 @@ namespace PokemonMiniTest.Unit.Tests
 
                 var getSingleModelPokemonService = new GetSingleModelPokemon(fakeHttpClientFactory.Object);
 
-                var output = await getSingleModelPokemonService.GetSingleModelPokemonService("hello");
+                var output = await getSingleModelPokemonService.GetSinglePokemon("hello");
 
                 output.Data.ShouldBeNull();
                 output.ErrorMessage.ShouldBe("External Service error");
@@ -317,7 +317,7 @@ namespace PokemonMiniTest.Unit.Tests
 
                 var getSingleModelPokemonService = new GetSingleModelPokemon(fakeHttpClientFactory.Object);
 
-                var output = await getSingleModelPokemonService.GetSingleModelPokemonService("hello");
+                var output = await getSingleModelPokemonService.GetSinglePokemon("hello");
 
                 output.Data.ShouldNotBeNull();
                 output.ErrorMessage.ShouldBeNullOrEmpty();
@@ -342,7 +342,7 @@ namespace PokemonMiniTest.Unit.Tests
 
                 var getSingleModelPokemonService = new GetSingleModelPokemon(fakeHttpClientFactory.Object);
 
-                var output = await getSingleModelPokemonService.GetSingleModelPokemonService("hello");
+                var output = await getSingleModelPokemonService.GetSinglePokemon("hello");
 
                 output.Data.ShouldBeNull();
                 output.ErrorMessage.ShouldNotBeNullOrEmpty();
@@ -405,7 +405,7 @@ namespace PokemonMiniTest.Unit.Tests
 
                 var output = await new YodaTranslationService(fakeHttpClientFactory.Object).GetTranslatedYodaPokemonModel(expected);
 
-                output.Data.ShouldBe(expected);
+                output.Data.ShouldBeNull();
                 output.ErrorMessage.ShouldNotBeNullOrEmpty();
                 output.IsSuccessful.ShouldBeFalse();
                 Assert.Equal(HttpStatusCode.BadRequest, output.HttpStatusCode);
@@ -549,7 +549,7 @@ namespace PokemonMiniTest.Unit.Tests
                     Description = "asdfghjklasdfghjkl"
                 });
 
-                output.Data.ShouldNotBeNull();
+                output.Data.ShouldBeNull();
                 output.ErrorMessage.ShouldNotBeNullOrEmpty();
                 output.IsSuccessful.ShouldBeFalse();
                 Assert.Equal(HttpStatusCode.BadRequest, output.HttpStatusCode);

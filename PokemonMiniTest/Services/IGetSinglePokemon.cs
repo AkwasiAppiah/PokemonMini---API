@@ -8,8 +8,8 @@ using PokemonMiniTest.Models;
 
 namespace PokemonMiniTest.Services
 {
-    public interface IGetSingleModelPokemon
+    public interface IPokemonService
     {
-        Task<ServiceResult<ModelPokemon>> GetSingleModelPokemonService(string pokemonName);
+        Task<ServiceResult<ModelPokemon>> GetSinglePokemon(string pokemonName);
     }
 }

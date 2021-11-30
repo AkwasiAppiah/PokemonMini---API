@@ -20,7 +20,7 @@ namespace PokemonMiniTest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddScoped<IGetSingleModelPokemon, GetSingleModelPokemon>();
+            services.AddScoped<IPokemonService, GetSingleModelPokemon>();
             services.AddScoped<IYodaTranslationService, YodaTranslationService>();
             services.AddScoped<IShakespeareTranslationService, ShakespeareTranslationService>();
             services.AddHttpClient();

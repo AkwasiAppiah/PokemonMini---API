@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace PokemonMiniTest.Models
 {
@@ -10,7 +11,8 @@ namespace PokemonMiniTest.Models
             public int id { get; set; }
             public string name { get; set; }
             public int order { get; set; }
-            public int gender_rate { get; set; }
+            [JsonProperty("gender_rate")]
+            public int genderRate { get; set; }
             public int capture_rate { get; set; }
             public int base_happiness { get; set; }
             public bool is_baby { get; set; }
@@ -36,7 +38,7 @@ namespace PokemonMiniTest.Models
 
             protected bool Equals(PokemonResponse other)
             {
-                return id == other.id && name == other.name && order == other.order && gender_rate == other.gender_rate && capture_rate == other.capture_rate && base_happiness == other.base_happiness && is_baby == other.is_baby && is_legendary == other.is_legendary && is_mythical == other.is_mythical && hatch_counter == other.hatch_counter && has_gender_differences == other.has_gender_differences && forms_switchable == other.forms_switchable && Equals(growth_rate, other.growth_rate) && Equals(pokedex_numbers, other.pokedex_numbers) && Equals(egg_groups, other.egg_groups) && Equals(color, other.color) && Equals(shape, other.shape) && Equals(evolves_from_species, other.evolves_from_species) && Equals(evolution_chain, other.evolution_chain) && Equals(habitat, other.habitat) && Equals(generation, other.generation) && Equals(names, other.names) && Equals(flavor_text_entries, other.flavor_text_entries) && Equals(form_descriptions, other.form_descriptions) && Equals(genera, other.genera) && Equals(varieties, other.varieties);
+                return id == other.id && name == other.name && order == other.order && genderRate == other.genderRate && capture_rate == other.capture_rate && base_happiness == other.base_happiness && is_baby == other.is_baby && is_legendary == other.is_legendary && is_mythical == other.is_mythical && hatch_counter == other.hatch_counter && has_gender_differences == other.has_gender_differences && forms_switchable == other.forms_switchable && Equals(growth_rate, other.growth_rate) && Equals(pokedex_numbers, other.pokedex_numbers) && Equals(egg_groups, other.egg_groups) && Equals(color, other.color) && Equals(shape, other.shape) && Equals(evolves_from_species, other.evolves_from_species) && Equals(evolution_chain, other.evolution_chain) && Equals(habitat, other.habitat) && Equals(generation, other.generation) && Equals(names, other.names) && Equals(flavor_text_entries, other.flavor_text_entries) && Equals(form_descriptions, other.form_descriptions) && Equals(genera, other.genera) && Equals(varieties, other.varieties);
             }
 
             public override bool Equals(object obj)
@@ -53,7 +55,7 @@ namespace PokemonMiniTest.Models
                 hashCode.Add(id);
                 hashCode.Add(name);
                 hashCode.Add(order);
-                hashCode.Add(gender_rate);
+                hashCode.Add(genderRate);
                 hashCode.Add(capture_rate);
                 hashCode.Add(base_happiness);
                 hashCode.Add(is_baby);

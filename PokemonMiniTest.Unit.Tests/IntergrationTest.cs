@@ -22,47 +22,35 @@ namespace PokemonMiniTest.Unit.Tests
     public class IntergrationTest
     {
         [Fact]
-        public void Test_Pokemon_Controller_If_Service_Returns_Null()
+        public async Task Test_Pokemon_Controller_If_Service_Returns_Null()
         {
-            var _getsinglemodelpokemon = new Mock<IGetSingleModelPokemon>();
-            var _yodaTranslationservice = new Mock<IYodaTranslationService>();
-            var _shakespeareTranslationService = new Mock<IShakespeareTranslationService>();
-
-            var modelPokemonServiceReturns = new ModelPokemon()
-            {
-                Name = null,
-                Description = null,
-                Habitat = null,
-                IsLegendary = false
-            };
-
+            var _getsinglemodelpokemon = new Mock<IPokemonService>();
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.NotFound,
-                ErrorMessage = "External Service Error",
-                Data = modelPokemonServiceReturns
+                ErrorMessage = null,
+                Data = null
             };
 
-            PokemonController sut = new PokemonController(_getsinglemodelpokemon.Object, _yodaTranslationservice.Object, _shakespeareTranslationService.Object);
+            PokemonController sut = new PokemonController(_getsinglemodelpokemon.Object, null, null);
 
-            _getsinglemodelpokemon.Setup(x => x.GetSingleModelPokemonService(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
+            _getsinglemodelpokemon.Setup(x => x.GetSinglePokemon(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
 
             //Assert 
 
-            var data = sut.GetSingleTranslatedPokemonAsyncTask("hello");
+            var data = await sut.GetSingleTranslatedPokemonAsyncTask("hello");
 
-            var result = data.Result.Result as NotFoundObjectResult;
+            var result = data.Result as NotFoundObjectResult;
 
-            Assert.Equal(null, data.Result.Value);
-            //result.StatusCode.ShouldBe(404);
-            //data.Result.Result.Value.ShouldBeNull();
+            result.StatusCode.ShouldBe(404);
+            result.Value.ToString().ShouldBe($"Cannot find pokemon hello");
         }
 
         [Fact]
         public void Test_Pokemon_Controller_If_Service_Handles_Condition_of_Cave()
         {
-            var _getsinglemodelpokemon = new Mock<IGetSingleModelPokemon>();
+            var _getsinglemodelpokemon = new Mock<IPokemonService>();
             var _yodaTranslationservice = new Mock<IYodaTranslationService>();
             var _shakespeareTranslationService = new Mock<IShakespeareTranslationService>();
 
@@ -77,14 +65,14 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.OK,
+                HttpStatusCode = HttpStatusCode.NotFound,
                 ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
 
             PokemonController sut = new PokemonController(_getsinglemodelpokemon.Object, _yodaTranslationservice.Object, _shakespeareTranslationService.Object);
 
-            _getsinglemodelpokemon.Setup(x => x.GetSingleModelPokemonService(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
+            _getsinglemodelpokemon.Setup(x => x.GetSinglePokemon(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
             _yodaTranslationservice.Setup(x => x.GetTranslatedYodaPokemonModel(It.Is<ModelPokemon>(x => x == modelPokemonServiceReturns))).ReturnsAsync(new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.OK,
@@ -106,7 +94,7 @@ namespace PokemonMiniTest.Unit.Tests
         [Fact]
         public void Test_Pokemon_Controller_If_Service_Handles_Condition_of_IsLegendary()
         {
-            var _getsinglemodelpokemon = new Mock<IGetSingleModelPokemon>();
+            var _getsinglemodelpokemon = new Mock<IPokemonService>();
             var _yodaTranslationservice = new Mock<IYodaTranslationService>();
             var _shakespeareTranslationService = new Mock<IShakespeareTranslationService>();
 
@@ -120,14 +108,14 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.OK,
+                HttpStatusCode = HttpStatusCode.NotFound,
                 ErrorMessage = "",
                 Data = modelPokemonServiceReturns
             };
 
             PokemonController sut = new PokemonController(_getsinglemodelpokemon.Object, _yodaTranslationservice.Object, _shakespeareTranslationService.Object);
 
-            _getsinglemodelpokemon.Setup(x => x.GetSingleModelPokemonService(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
+            _getsinglemodelpokemon.Setup(x => x.GetSinglePokemon(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
             _yodaTranslationservice.Setup(x => x.GetTranslatedYodaPokemonModel(It.Is<ModelPokemon>(x => x == modelPokemonServiceReturns))).ReturnsAsync(new ServiceResult<ModelPokemon>()
             {
                 HttpStatusCode = HttpStatusCode.OK,
@@ -149,7 +137,7 @@ namespace PokemonMiniTest.Unit.Tests
         [Fact]
         public void Test_Pokemon_Controller_If_Service_Handles_Condition_of_Not_Cave_Or_Not_Legendary()
         {
-            var _getsinglemodelpokemon = new Mock<IGetSingleModelPokemon>();
+            var _getsinglemodelpokemon = new Mock<IPokemonService>();
             var _yodaTranslationservice = new Mock<IYodaTranslationService>();
             var _shakespeareTranslationService = new Mock<IShakespeareTranslationService>();
 
@@ -164,14 +152,14 @@ namespace PokemonMiniTest.Unit.Tests
 
             var ServiceResultServiceReturns = new ServiceResult<ModelPokemon>()
             {
-                HttpStatusCode = HttpStatusCode.OK,
+                HttpStatusCode = HttpStatusCode.NotFound,
                 ErrorMessage = null,
                 Data = modelPokemonServiceReturns
             };
 
             PokemonController sut = new PokemonController(_getsinglemodelpokemon.Object, _yodaTranslationservice.Object, _shakespeareTranslationService.Object);
 
-            _getsinglemodelpokemon.Setup(x => x.GetSingleModelPokemonService(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
+            _getsinglemodelpokemon.Setup(x => x.GetSinglePokemon(It.IsAny<string>())).ReturnsAsync(ServiceResultServiceReturns);
             //_yodaTranslationservice.Setup(x => x.GetTranslatedYodaPokemonModel(It.Is<ModelPokemon>(x => x == modelPokemonServiceReturns))).ReturnsAsync(new ServiceResult<ModelPokemon>());
             _shakespeareTranslationService.Setup(x => x.TranslateShakespeareAsyncTask(It.Is<ModelPokemon>(x => x == modelPokemonServiceReturns))).ReturnsAsync(new ServiceResult<ModelPokemon>()
 
