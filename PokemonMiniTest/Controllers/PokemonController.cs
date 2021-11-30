@@ -16,12 +16,12 @@ namespace PokemonMiniTest.Controllers
     [Route("[controller]")]
     public class PokemonController : Controller
     {
-        private readonly IGetSingleModelPokemon _getSinglePokemonService;
+        private readonly IPokemonService _pokemonService;
         private readonly IYodaTranslationService _yodaTranslationService;
         private readonly IShakespeareTranslationService _shakespeareTranslationService;
-        public PokemonController(IGetSingleModelPokemon getSinglePokemon, IYodaTranslationService yodaTranslationService, IShakespeareTranslationService shakespeareTranslationService)
+        public PokemonController(IPokemonService getSinglePokemon, IYodaTranslationService yodaTranslationService, IShakespeareTranslationService shakespeareTranslationService)
         {
-            _getSinglePokemonService = getSinglePokemon;
+            _pokemonService = getSinglePokemon;
             _yodaTranslationService = yodaTranslationService;
             _shakespeareTranslationService = shakespeareTranslationService;
         }
@@ -31,40 +31,52 @@ namespace PokemonMiniTest.Controllers
         public async Task<ActionResult<ModelPokemon>> GetSinglePokemonAsyncTask(string pokemonName)
         {
             var lowercasePokemonName = pokemonName.ToLower();
-            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(lowercasePokemonName);
-            var pokemonFromApi = serviceResult.Data;
+            var pokemonFromApi = await _pokemonService.GetSinglePokemon(lowercasePokemonName);
 
-            if(serviceResult.ErrorMessage == null || serviceResult.ErrorMessage == "")
+            if(pokemonFromApi.IsSuccessful)
             {
-                 return Ok(pokemonFromApi);
+                 return Ok(pokemonFromApi.Data);
             }
            
-            return NotFound(pokemonFromApi);
+            return NotFound($"Cannot find pokemon {pokemonName}");
         }
 
         [HttpGet("/translated/{pokemonName}")]
         public async Task<ActionResult<ModelPokemon>> GetSingleTranslatedPokemonAsyncTask(string pokemonName)
         {
-            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(pokemonName);
+            var serviceResult = await _pokemonService.GetSinglePokemon(pokemonName);
 
             var pokemonFromPokemonApi = serviceResult.Data;
 
-            if (serviceResult.ErrorMessage == "" || serviceResult.ErrorMessage == null)
+            if (!serviceResult.IsSuccessful)
             {
-                if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
-                {
-                    var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
-                    return Ok(translatedPokemon.Data);
-                }
-                else
-                {
-                    var pokemonFromShakespeareApi =
-                        await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
-                    return Ok(pokemonFromShakespeareApi.Data);
-                }
+                return new StatusCodeResult(500);
             }
 
-            return NotFound(serviceResult.Data);
+            if (serviceResult.Data == null)
+            {
+                return NotFound($"Cannot find pokemon {pokemonName}");
+            }
+
+            if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
+            {
+                var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
+                if (!translatedPokemon.IsSuccessful)
+                {
+                    return new StatusCodeResult(500);
+                }
+
+                if(translatedPokemon.Data == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(translatedPokemon.Data);
+            }
+                
+            var pokemonFromShakespeareApi =
+                await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
+            return Ok(pokemonFromShakespeareApi.Data);
         }
     }
 }

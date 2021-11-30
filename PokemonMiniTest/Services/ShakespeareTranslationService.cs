@@ -20,6 +20,7 @@ namespace PokemonMiniTest.Services
         {
             try
             {
+                // Add to config
                 const string endpoint = "https://api.funtranslations.com/translate/shakespeare";
 
                 var description = pokemonToTranslate.Description;
@@ -31,36 +32,38 @@ namespace PokemonMiniTest.Services
 
                 var content = new FormUrlEncodedContent(jsonContent);
 
+                string responseBody = "";
+                HttpStatusCode statusCode = HttpStatusCode.OK;
 
-                var httpClient = _httpClientFactory.CreateClient();
+                using (var httpClient = _httpClientFactory.CreateClient()) {
 
-                var result = await httpClient.PostAsync(endpoint, content);
+                    var result = await httpClient.PostAsync(endpoint, content);
 
-                if (!result.IsSuccessStatusCode)
-                {
-                    return new ServiceResult<ModelPokemon>()
+                    if (!result.IsSuccessStatusCode)
                     {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "Shakespeare API failed",
-                        Data = pokemonToTranslate
-                    };
+                        return new ServiceResult<ModelPokemon>()
+                        {
+                            HttpStatusCode = result.StatusCode,
+                            ErrorMessage = "Shakespeare API failed",
+                        };
+                    }
+
+                    responseBody = await result.Content.ReadAsStringAsync();
+                    statusCode = result.StatusCode;
                 }
 
-                var responseBody = await result.Content.ReadAsStringAsync();
+                var shakespeareObject = JsonSerializer.Deserialize<YodaApiResponseJson>(responseBody);
 
-                var yodaObject = JsonSerializer.Deserialize<YodaApiResponseJson>(responseBody);
+                var translatedText = shakespeareObject.contents.translated;
 
-                var translatedText = yodaObject.contents.translated;
+                var translatedShakespeareModel = pokemonToTranslate;
 
-                var translatedYodaModel = pokemonToTranslate;
-
-                translatedYodaModel.Description = translatedText;
+                translatedShakespeareModel.Description = translatedText;
 
                 return new ServiceResult<ModelPokemon>()
                 {
-                    HttpStatusCode = result.StatusCode,
-                    ErrorMessage = string.Empty,
-                    Data = translatedYodaModel
+                    HttpStatusCode = statusCode,
+                    Data = translatedShakespeareModel
                 };
             }
             catch (Exception e)
@@ -69,7 +72,6 @@ namespace PokemonMiniTest.Services
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = e.Message,
-                    Data = null
                 };
             }
         }

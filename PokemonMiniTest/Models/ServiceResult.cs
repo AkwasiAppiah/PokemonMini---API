@@ -9,6 +9,12 @@ namespace PokemonMiniTest.Models
 {
     public class ServiceResult<T> where T : class
     {
+
+        public ServiceResult()
+        {
+            HttpStatusCode = HttpStatusCode.OK;
+        }
+
         public HttpStatusCode HttpStatusCode  { get; set; }
         public string ErrorMessage { get; set; }
 
