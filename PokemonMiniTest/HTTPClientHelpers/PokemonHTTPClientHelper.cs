@@ -9,14 +9,13 @@ namespace PokemonMiniTest.HTTPClientHelpers
 {
     public class PokemonHTTPClientHelper : IPokemonHTTPClientHelper
     {
-        IHttpClientFactory httpClientFactory;
-        HttpClient client;
-        String ClientName;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly String _clientName;
 
-        public PokemonHTTPClientHelper(IHttpClientFactory httpClientFactory, string ClientName)
+        public PokemonHTTPClientHelper(IHttpClientFactory httpClientFactory, string clientName)
         {
-            this.httpClientFactory = httpClientFactory;
-            this.ClientName = ClientName;
+            _httpClientFactory = httpClientFactory;
+            _clientName = clientName;
         }
 
         #region Generic, Async, static HTTP functions for GET, POST, PUT, and DELETE             
@@ -24,10 +23,10 @@ namespace PokemonMiniTest.HTTPClientHelpers
         public async Task<T> GetAsync<T>(string pokemonName)
         {
             T data;
-            client = httpClientFactory.CreateClient(ClientName);
+            var client = _httpClientFactory.CreateClient(_clientName);
             try
             {
-                using (HttpResponseMessage response = await client.GetAsync($"{client.BaseAddress}/{pokemonName}"))
+                using (HttpResponseMessage response = await client.GetAsync($"pokemon-species/{pokemonName}"))
                 using (HttpContent content = response.Content)
                 {
                     if (!response.IsSuccessStatusCode)
@@ -53,8 +52,8 @@ namespace PokemonMiniTest.HTTPClientHelpers
         public async Task<T> PostAsync<T>(HttpContent contentPost)
         {
             T data;
-            client = httpClientFactory.CreateClient(ClientName);
-            using (HttpResponseMessage response = await client.PostAsync(client.BaseAddress, contentPost))
+            var client = _httpClientFactory.CreateClient(_clientName);
+            using (HttpResponseMessage response = await client.PostAsync("/", contentPost))
             using (HttpContent content = response.Content)
             {
 
@@ -77,7 +76,7 @@ namespace PokemonMiniTest.HTTPClientHelpers
         public async Task<T> PutAsync<T>(string url, HttpContent contentPut)
         {
             T data;
-            client = httpClientFactory.CreateClient(ClientName);
+            var client = _httpClientFactory.CreateClient(_clientName);
 
             using (HttpResponseMessage response = await client.PutAsync(url, contentPut))
             using (HttpContent content = response.Content)
@@ -96,7 +95,7 @@ namespace PokemonMiniTest.HTTPClientHelpers
         public async Task<T> DeleteAsync<T>(string url)
         {
             T newT;
-            client = httpClientFactory.CreateClient(ClientName);
+            var client = _httpClientFactory.CreateClient(_clientName);
 
             using (HttpResponseMessage response = await client.DeleteAsync(url))
             using (HttpContent content = response.Content)

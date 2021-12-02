@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,20 +9,21 @@ namespace PokemonMiniTest.Models
 
     public class TranslationAPIResponseJson
         {
-            public Success success { get; set; }
-            public Contents contents { get; set; }
+            public Success Success { get; set; }
+            public Contents Contents { get; set; }
         }
 
         public class Success
         {
-            public int total { get; set; }
+            public int Total { get; set; }
         }
 
         public class Contents
         {
-            public string translated { get; set; }
-            public string text { get; set; }
-            public string translation { get; set; }
+            [JsonProperty("translated")]
+            public string Translated { get; set; }
+            public string Text { get; set; }
+            public string Translation { get; set; }
         }
 
 }

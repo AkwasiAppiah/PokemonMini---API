@@ -35,7 +35,7 @@ namespace PokemonMiniTest.Services
 
                 var yodaObject = await _hTTPClientHelper.PostAsync<TranslationAPIResponseJson>(content);
 
-                if(yodaObject.contents == null)
+                if(yodaObject.Contents == null)
                 {
                     return new ServiceResult<ModelPokemon>
                     {
@@ -43,7 +43,7 @@ namespace PokemonMiniTest.Services
                     };
                 }
 
-                var translatedText = yodaObject.contents.translated;
+                var translatedText = yodaObject.Contents.Translated;
 
                 pokemonToTranslate.Description = translatedText;
 

@@ -409,13 +409,13 @@ namespace PokemonMiniTest.Unit.Tests
 
             var expected = new TranslationAPIResponseJson()
             {
-                success = new Success()
+                Success = new Success()
                 {
-                    total = 200
+                    Total = 200
                 },
-                contents = new Contents()
+                Contents = new Contents()
                 {
-                    translated = "goodbye"
+                    Translated = "goodbye"
                 }
             };
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(new HttpResponseMessage()
@@ -480,13 +480,13 @@ namespace PokemonMiniTest.Unit.Tests
 
             var expected = new TranslationAPIResponseJson()
             {
-                success = new Success()
+                Success = new Success()
                 {
-                    total = 200
+                    Total = 200
                 },
-                contents = new Contents()
+                Contents = new Contents()
                 {
-                    translated = "goodbye"
+                    Translated = "goodbye"
                 }
             };
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(new HttpResponseMessage()
@@ -518,13 +518,13 @@ namespace PokemonMiniTest.Unit.Tests
 
             var expected = new TranslationAPIResponseJson()
             {
-                success = new Success()
+                Success = new Success()
                 {
-                    total = 200
+                    Total = 200
                 },
-                contents = new Contents()
+                Contents = new Contents()
                 {
-                    translated = "goodbye"
+                    Translated = "goodbye"
                 }
             };
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(new HttpResponseMessage()

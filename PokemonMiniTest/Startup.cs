@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using PokemonMiniTest.HTTPClientHelpers;
+using PokemonMiniTest.Models;
 using PokemonMiniTest.Services;
 using System;
 using System.Net.Http;
@@ -24,6 +25,8 @@ namespace PokemonMiniTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var apiConfig = new ApiConfig();
+            Configuration.GetSection(ApiConfig.Api).Bind(apiConfig);
             services.AddControllers();
             services.AddScoped<IPokemonService, PokemonService>();
             services.AddScoped<IYodaTranslationService, YodaTranslationService>();
@@ -32,7 +35,7 @@ namespace PokemonMiniTest
             //services.AddHttpClient("PokemonApi");
             //services.AddSingleton<IHTTPClientHelper, HTTPClientHelper>(s => new HTTPClientHelper(s.GetService<IHttpClientFactory>(), "PokemonApi"));
 
-            services.AddHttpClient("Pokemon", client => { client.BaseAddress = new System.Uri($"https://pokeapi.co/api/v2/pokemon-species");});
+            services.AddHttpClient("Pokemon", client => { client.BaseAddress = new System.Uri(apiConfig.PokemonBaseUrl);});
             services.AddSingleton<IPokemonHTTPClientHelper, PokemonHTTPClientHelper>(s => new PokemonHTTPClientHelper(s.GetService<IHttpClientFactory>(), "Pokemon"));
 
             services.AddHttpClient("Yoda", client => { client.BaseAddress = new System.Uri($"https://api.funtranslations.com/translate/yoda"); });

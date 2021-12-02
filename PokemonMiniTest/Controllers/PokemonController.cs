@@ -14,7 +14,7 @@ namespace PokemonMiniTest.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class PokemonController : Controller
+    public class PokemonController : ControllerBase
     {
         private readonly IPokemonService _getSinglePokemonService;
         private readonly IYodaTranslationService _yodaTranslationService;
@@ -78,7 +78,7 @@ namespace PokemonMiniTest.Controllers
 
                 if(translatedPokemon.Data == null)
                 {
-                    return Ok(serviceResult.Data);
+                    return Ok(pokemonFromPokemonApi);
                 }
 
                 return Ok(translatedPokemon.Data);
@@ -92,7 +92,7 @@ namespace PokemonMiniTest.Controllers
             }
             if(pokemonFromShakespeareApi.Data == null)
             {
-                return BadRequest($"Unable to translate{serviceResult.Data}");
+                return BadRequest($"Unable to translate {pokemonFromPokemonApi}");
             }
             return Ok(pokemonFromShakespeareApi.Data);
         }

@@ -17,10 +17,10 @@ namespace PokemonMiniTest.Services
 {
     public class PokemonService : IPokemonService
     {
-        private readonly IPokemonHTTPClientHelper _hTTPClientHelper;
-        public PokemonService(IPokemonHTTPClientHelper hTTPClientHelper)
+        private readonly IPokemonHTTPClientHelper _httpClientHelper;
+        public PokemonService(IPokemonHTTPClientHelper httpClientHelper)
         {
-            _hTTPClientHelper = hTTPClientHelper;
+            _httpClientHelper = httpClientHelper;
         }
 
         public async Task<ServiceResult<ModelPokemon>> GetSinglePokemonAsync(string pokemonName)
@@ -37,7 +37,7 @@ namespace PokemonMiniTest.Services
             pokemonName = pokemonName.Trim().ToLower();
             try
             {
-                var pokemonApiResponse = await _hTTPClientHelper.GetAsync<PokemonResponse>(pokemonName);
+                var pokemonApiResponse = await _httpClientHelper.GetAsync<PokemonResponse>(pokemonName);
 
                 var config = new MapperConfiguration(cfg => cfg.AddProfile<ModelPokemonMapping>());
                 var mapper = new Mapper(config);

@@ -33,7 +33,7 @@ namespace PokemonMiniTest.Services
                 var shakespeareObject = await _hTTPClientHelper.PostAsync<TranslationAPIResponseJson>(content);
 
 
-                if (shakespeareObject.contents == null)
+                if (shakespeareObject.Contents == null)
                 {
                     return new ServiceResult<ModelPokemon>
                     {
@@ -41,24 +41,17 @@ namespace PokemonMiniTest.Services
                     };
                 }
 
-                var translatedText = shakespeareObject.contents.translated;
+                var translatedText = shakespeareObject.Contents.Translated;
 
                 var translatedShakespeareModel = pokemonToTranslate;
 
                 translatedShakespeareModel.Description = translatedText;
 
-                return new ServiceResult<ModelPokemon>()
-                {
-                    Data = translatedShakespeareModel
-                };
+                return new ServiceResult<ModelPokemon>(translatedShakespeareModel);
             }
             catch (Exception e)
             {
-                return new ServiceResult<ModelPokemon>()
-                {
-                    HttpStatusCode = HttpStatusCode.InternalServerError,
-                    ErrorMessage = e.Message,
-                };
+                return new ServiceResult<ModelPokemon>(e.Message);
             }
         }
     }

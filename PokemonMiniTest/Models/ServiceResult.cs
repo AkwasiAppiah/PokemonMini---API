@@ -13,8 +13,20 @@ namespace PokemonMiniTest.Models
         {
             HttpStatusCode = HttpStatusCode.OK;
         }
-        public HttpStatusCode HttpStatusCode  { get; set; }
-        public string ErrorMessage { get; set; }
+
+        public ServiceResult(T data, HttpStatusCode statusCode = HttpStatusCode.OK) {
+            Data = data;
+            HttpStatusCode = statusCode;
+        }
+
+        public ServiceResult(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
+        {
+            ErrorMessage = errorMessage;
+            HttpStatusCode = statusCode;
+        }
+
+        public HttpStatusCode HttpStatusCode  { get; set;}
+        public string ErrorMessage { get; set;}
 
         public bool IsSuccessful
         {
@@ -29,6 +41,6 @@ namespace PokemonMiniTest.Models
             }
         }
 
-        public T Data { get; set; }
+        public T Data { get; set;}
     }
 }
