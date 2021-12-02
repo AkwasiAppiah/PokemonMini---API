@@ -11,57 +11,41 @@ using PokeAPI;
 using PokemonMiniTest.Models;
 using AutoMapper;
 using PokemonMiniTest.Mappings;
+using PokemonMiniTest.HTTPClientHelpers;
 
 namespace PokemonMiniTest.Services
 {
-    public class GetSingleModelPokemon : IGetSingleModelPokemon
+    public class PokemonService : IPokemonService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        public GetSingleModelPokemon(IHttpClientFactory httpClientFactory)
+        private readonly IPokemonHTTPClientHelper _hTTPClientHelper;
+        public PokemonService(IPokemonHTTPClientHelper hTTPClientHelper)
         {
-            _httpClientFactory = httpClientFactory;
+            _hTTPClientHelper = hTTPClientHelper;
         }
 
-       
-        public async Task<ServiceResult<ModelPokemon>> GetSingleModelPokemonService(string pokemonName)
+        public async Task<ServiceResult<ModelPokemon>> GetSinglePokemonAsync(string pokemonName)
         {
-            var config = new MapperConfiguration(cfg =>
-                cfg.AddProfile<ModelPokemonMapping>()
-            );
+            if (string.IsNullOrEmpty(pokemonName))
+            {
+                return new ServiceResult<ModelPokemon>
+                {
+                    ErrorMessage = "Pokemon name is required"
+                };
+            }
 
+            //Format pokemon name so that it is uniform
+            pokemonName = pokemonName.Trim().ToLower();
             try
             {
-                //too much in once method SOLID ... (Single responsibility)
+                var pokemonApiResponse = await _hTTPClientHelper.GetAsync<PokemonResponse>(pokemonName);
 
-                var endpoint = $"https://pokeapi.co/api/v2/pokemon-species/{pokemonName}";
-                //DI
-                //look into 'using' statements
-                var httpClient = _httpClientFactory.CreateClient();
-
-                var result = await httpClient.GetAsync(endpoint);
-
-                if (!result.IsSuccessStatusCode)
-                {
-                    return new ServiceResult<ModelPokemon>()
-                    {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "External Service error",
-                        Data = null,
-                    };
-                }
-
-                var responseBody = await result.Content.ReadAsStringAsync();
-
-                var response = JsonSerializer.Deserialize<PokemonResponse>(responseBody);
-
+                var config = new MapperConfiguration(cfg => cfg.AddProfile<ModelPokemonMapping>());
                 var mapper = new Mapper(config);
-                var modelPokemon = mapper.Map<ModelPokemon>(response);
+                var modelPokemon = mapper.Map<ModelPokemon>(pokemonApiResponse);
 
                 return new ServiceResult<ModelPokemon>()
                 {
                     Data = modelPokemon,
-                    ErrorMessage = string.Empty,
-                    HttpStatusCode = result.StatusCode
                 };
             }
             catch (Exception e)
@@ -70,7 +54,6 @@ namespace PokemonMiniTest.Services
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = e.Message,
-                    Data = null,
                 };
             }
 

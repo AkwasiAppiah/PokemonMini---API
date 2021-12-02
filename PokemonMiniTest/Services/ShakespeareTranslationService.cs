@@ -1,4 +1,5 @@
-﻿using PokemonMiniTest.Models;
+﻿using PokemonMiniTest.HTTPClientHelpers;
+using PokemonMiniTest.Models;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -10,18 +11,16 @@ namespace PokemonMiniTest.Services
 {
     public class ShakespeareTranslationService : IShakespeareTranslationService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IShakespeareHTTPClientHelper _hTTPClientHelper;
 
-        public ShakespeareTranslationService(IHttpClientFactory httpClientFactory)
+        public ShakespeareTranslationService(IShakespeareHTTPClientHelper hTTPClientHelper)
         {
-            _httpClientFactory = httpClientFactory;
+            _hTTPClientHelper = hTTPClientHelper;
         }
         public async Task<ServiceResult<ModelPokemon>> TranslateShakespeareAsyncTask(ModelPokemon pokemonToTranslate)
         {
             try
             {
-                const string endpoint = "https://api.funtranslations.com/translate/shakespeare";
-
                 var description = pokemonToTranslate.Description;
 
                 var jsonContent = new Dictionary<string, string>()
@@ -31,36 +30,26 @@ namespace PokemonMiniTest.Services
 
                 var content = new FormUrlEncodedContent(jsonContent);
 
+                var shakespeareObject = await _hTTPClientHelper.PostAsync<TranslationAPIResponseJson>(content);
 
-                var httpClient = _httpClientFactory.CreateClient();
 
-                var result = await httpClient.PostAsync(endpoint, content);
-
-                if (!result.IsSuccessStatusCode)
+                if (shakespeareObject.contents == null)
                 {
-                    return new ServiceResult<ModelPokemon>()
+                    return new ServiceResult<ModelPokemon>
                     {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "Shakespeare API failed",
-                        Data = pokemonToTranslate
+                        ErrorMessage = "External API could not translate this text for some reason"
                     };
                 }
 
-                var responseBody = await result.Content.ReadAsStringAsync();
+                var translatedText = shakespeareObject.contents.translated;
 
-                var yodaObject = JsonSerializer.Deserialize<YodaApiResponseJson>(responseBody);
+                var translatedShakespeareModel = pokemonToTranslate;
 
-                var translatedText = yodaObject.contents.translated;
-
-                var translatedYodaModel = pokemonToTranslate;
-
-                translatedYodaModel.Description = translatedText;
+                translatedShakespeareModel.Description = translatedText;
 
                 return new ServiceResult<ModelPokemon>()
                 {
-                    HttpStatusCode = result.StatusCode,
-                    ErrorMessage = string.Empty,
-                    Data = translatedYodaModel
+                    Data = translatedShakespeareModel
                 };
             }
             catch (Exception e)
@@ -69,7 +58,6 @@ namespace PokemonMiniTest.Services
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = e.Message,
-                    Data = null
                 };
             }
         }

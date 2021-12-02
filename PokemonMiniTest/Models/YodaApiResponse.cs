@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace PokemonMiniTest.Models
 {
 
-    public class YodaApiResponseJson
+    public class TranslationAPIResponseJson
         {
             public Success success { get; set; }
             public Contents contents { get; set; }

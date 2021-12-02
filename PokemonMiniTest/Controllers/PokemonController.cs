@@ -16,10 +16,10 @@ namespace PokemonMiniTest.Controllers
     [Route("[controller]")]
     public class PokemonController : Controller
     {
-        private readonly IGetSingleModelPokemon _getSinglePokemonService;
+        private readonly IPokemonService _getSinglePokemonService;
         private readonly IYodaTranslationService _yodaTranslationService;
         private readonly IShakespeareTranslationService _shakespeareTranslationService;
-        public PokemonController(IGetSingleModelPokemon getSinglePokemon, IYodaTranslationService yodaTranslationService, IShakespeareTranslationService shakespeareTranslationService)
+        public PokemonController(IPokemonService getSinglePokemon, IYodaTranslationService yodaTranslationService, IShakespeareTranslationService shakespeareTranslationService)
         {
             _getSinglePokemonService = getSinglePokemon;
             _yodaTranslationService = yodaTranslationService;
@@ -30,41 +30,71 @@ namespace PokemonMiniTest.Controllers
         [HttpGet("{pokemonName}")] 
         public async Task<ActionResult<ModelPokemon>> GetSinglePokemonAsyncTask(string pokemonName)
         {
-            var lowercasePokemonName = pokemonName.ToLower();
-            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(lowercasePokemonName);
+            //var lowercasePokemonName = pokemonName.ToLower();
+            var serviceResult = await _getSinglePokemonService.GetSinglePokemonAsync(pokemonName.ToLower());
             var pokemonFromApi = serviceResult.Data;
 
-            if(serviceResult.ErrorMessage == null || serviceResult.ErrorMessage == "")
+            if (serviceResult.ErrorMessage == "External Service error")
             {
-                 return Ok(pokemonFromApi);
+                return BadRequest($"Third Party API down... please try again later");
             }
-           
-            return NotFound(pokemonFromApi);
+            if(serviceResult.Data == null)
+            {
+                return NotFound($"Pokemon {pokemonName} was not found");
+            }
+            if (!serviceResult.IsSuccessful)
+            {
+                return NotFound($"{pokemonName} not found");
+            }
+            
+            return Ok(pokemonFromApi);
         }
 
         [HttpGet("/translated/{pokemonName}")]
         public async Task<ActionResult<ModelPokemon>> GetSingleTranslatedPokemonAsyncTask(string pokemonName)
         {
-            var serviceResult = await _getSinglePokemonService.GetSingleModelPokemonService(pokemonName);
 
+            var serviceResult = await _getSinglePokemonService.GetSinglePokemonAsync(pokemonName);
             var pokemonFromPokemonApi = serviceResult.Data;
 
-            if (serviceResult.ErrorMessage == "" || serviceResult.ErrorMessage == null)
+            if (!serviceResult.IsSuccessful)
             {
-                if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
-                {
-                    var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
-                    return Ok(translatedPokemon.Data);
-                }
-                else
-                {
-                    var pokemonFromShakespeareApi =
-                        await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
-                    return Ok(pokemonFromShakespeareApi.Data);
-                }
+                return new StatusCodeResult(500);
             }
 
-            return NotFound(serviceResult.Data);
+            if(serviceResult.Data == null)
+            {
+                return NotFound($"Cannot find pokemon {pokemonName}");
+            }
+
+            if (pokemonFromPokemonApi.Habitat == "cave" || pokemonFromPokemonApi.IsLegendary)
+            {
+                var translatedPokemon = await _yodaTranslationService.GetTranslatedYodaPokemonModel(pokemonFromPokemonApi);
+
+                if (!translatedPokemon.IsSuccessful)
+                {
+                    return new StatusCodeResult(500);
+                }
+
+                if(translatedPokemon.Data == null)
+                {
+                    return Ok(serviceResult.Data);
+                }
+
+                return Ok(translatedPokemon.Data);
+            }
+
+            var pokemonFromShakespeareApi = await _shakespeareTranslationService.TranslateShakespeareAsyncTask(pokemonFromPokemonApi);
+
+            if (!pokemonFromShakespeareApi.IsSuccessful)
+            {
+                return new StatusCodeResult(500);
+            }
+            if(pokemonFromShakespeareApi.Data == null)
+            {
+                return BadRequest($"Unable to translate{serviceResult.Data}");
+            }
+            return Ok(pokemonFromShakespeareApi.Data);
         }
     }
 }

@@ -6,60 +6,49 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper.Configuration;
+using PokemonMiniTest.HTTPClientHelpers;
 using PokemonMiniTest.Models;
 
 namespace PokemonMiniTest.Services
 {
     public class YodaTranslationService : IYodaTranslationService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        public YodaTranslationService(IHttpClientFactory httpClientFactory)
+        private readonly IYodaHTTPClientHelper _hTTPClientHelper;
+
+        public YodaTranslationService(IYodaHTTPClientHelper hTTPClientHelper)
         {
-            _httpClientFactory = httpClientFactory;
+            //_httpClientFactory = httpClientFactory;
+            _hTTPClientHelper = hTTPClientHelper;
         }
         public async Task<ServiceResult<ModelPokemon>> GetTranslatedYodaPokemonModel(ModelPokemon pokemonToTranslate)
         {
-
             try
             {
-                const string endpoint = "https://api.funtranslations.com/translate/yoda";
-
                 var description = pokemonToTranslate.Description;
 
                 var jsonContent = new Dictionary<string, string>()
-            {
-                {"text", $"{description}"}
-            };
+                {
+                    {"text", $"{description}"}
+                };
 
                 var content = new FormUrlEncodedContent(jsonContent);
 
+                var yodaObject = await _hTTPClientHelper.PostAsync<TranslationAPIResponseJson>(content);
 
-                var httpClient = _httpClientFactory.CreateClient();
-
-                var result = await httpClient.PostAsync(endpoint, content);
-
-                if (!result.IsSuccessStatusCode)
+                if(yodaObject.contents == null)
                 {
-                    return new ServiceResult<ModelPokemon>()
+                    return new ServiceResult<ModelPokemon>
                     {
-                        HttpStatusCode = result.StatusCode,
-                        ErrorMessage = "External Service Error",
-                        Data = pokemonToTranslate
+                        ErrorMessage = "External API could not translate this text for some reason"
                     };
                 }
-                var responseBody = await result.Content.ReadAsStringAsync();
-
-                var yodaObject = JsonSerializer.Deserialize<YodaApiResponseJson>(responseBody);
 
                 var translatedText = yodaObject.contents.translated;
 
                 pokemonToTranslate.Description = translatedText;
 
-
                 return new ServiceResult<ModelPokemon>()
                 {
-                    HttpStatusCode = result.StatusCode,
-                    ErrorMessage = String.Empty,
                     Data = pokemonToTranslate
                 };
             }
@@ -69,10 +58,8 @@ namespace PokemonMiniTest.Services
                 {
                     HttpStatusCode = HttpStatusCode.InternalServerError,
                     ErrorMessage = exception.Message,
-                    Data = null
                 };
             }
-
         }
     }
 }
